@@ -79,18 +79,6 @@ export function drawWatermark(rc: RenderContext) {
   ctx.restore();
 }
 
-/** Sahnalar bo'yicha progress chizig'i — tomoshabinni ushlab turadi. */
-export function drawProgress(rc: RenderContext, globalP: number) {
-  const { ctx, W, H, brand } = rc;
-  const h = Math.max(3, Math.round(W * 0.004));
-  ctx.save();
-  ctx.fillStyle = alpha(brand.text, 0.12);
-  ctx.fillRect(0, H - h, W, h);
-  ctx.fillStyle = brand.accent;
-  ctx.fillRect(0, H - h, W * globalP, h);
-  ctx.restore();
-}
-
 /** Urg'u chizig'i — sarlavha ostidagi qisqa aksent. */
 export function drawRule(
   rc: RenderContext,

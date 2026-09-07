@@ -202,8 +202,7 @@ export function renderFrame(
   const local = clamp(timeMs, 0, slices[slices.length - 1].end) - cur.start;
   const prev = cur.index > 0 ? slices[cur.index - 1] : undefined;
   const transition = cur.scene.transition ?? "fade";
-  const inTransition =
-    !!prev && transition !== "none" && local < TRANSITION_MS && !draftSkipsTransitions(draft);
+  const inTransition = !!prev && transition !== "none" && local < TRANSITION_MS;
 
   const base: DrawSceneOptions = {
     images: opts.images,
@@ -232,11 +231,6 @@ export function renderFrame(
   });
   drawScene(bctx, project, cur, local, W, H, { ...base, noOutro: true });
   composite(ctx, a, b, transition, local / TRANSITION_MS, W, H);
-}
-
-/** Juda past quvvatli qurilmalarda preview'da o'tishlarni tashlab ketish. */
-function draftSkipsTransitions(_draft: boolean) {
-  return false;
 }
 
 /** Sahna eskizini (thumbnail) chizadi. */

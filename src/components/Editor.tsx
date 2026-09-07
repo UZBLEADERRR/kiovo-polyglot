@@ -79,14 +79,15 @@ export function Editor({ project, onChange, onBack, onToast }: Props) {
     [slices],
   );
 
-  const onTimeUpdate = useCallback(
-    (ms: number) => {
-      setTimeMs(ms);
-      const slice = slices.find((s) => ms >= s.start && ms < s.end);
-      if (slice && slice.index !== activeIndex) setActiveIndex(slice.index);
-    },
-    [slices, activeIndex],
-  );
+  // Ijro paytida bu funksiya sekundiga bir necha marta chaqiriladi —
+  // uning o'zgarishi rAF siklini qayta ishga tushirmasligi kerak.
+  const slicesRef = useRef(slices);
+  slicesRef.current = slices;
+  const onTimeUpdate = useCallback((ms: number) => {
+    setTimeMs(ms);
+    const slice = slicesRef.current.find((s) => ms >= s.start && ms < s.end);
+    if (slice) setActiveIndex((prev) => (prev === slice.index ? prev : slice.index));
+  }, []);
 
   const addScene = (templateId: string) => {
     const scene = makeScene(templateId);

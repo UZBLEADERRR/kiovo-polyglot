@@ -17,13 +17,20 @@ function Thumb({
   const w = 108;
   const h = Math.round((w * aspect.h) / aspect.w);
 
+  // Loyiha har tahrirda yangi obyekt bo'ladi, lekin eskizni faqat shu
+  // sahna yoki brend o'zgarganda qayta chizish kifoya.
+  const projectRef = useRef(project);
+  projectRef.current = project;
+  const scene = project.scenes[index];
+  const brand = project.brand;
+
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
     canvas.width = w;
     canvas.height = h;
-    renderThumbnail(canvas, project, index, images);
-  }, [project, index, images, w, h]);
+    renderThumbnail(canvas, projectRef.current, index, images);
+  }, [scene, brand, index, images, w, h]);
 
   return <canvas ref={ref} style={{ aspectRatio: `${aspect.w} / ${aspect.h}` }} />;
 }
