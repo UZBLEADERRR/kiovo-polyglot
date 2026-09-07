@@ -266,8 +266,11 @@ export function AiSheet({ projectAspect, onClose, onCreated }: Props) {
           value={aspect}
           options={[
             { value: ASPECT_MAP[projectAspect], label: projectAspect },
-            { value: "1:1", label: "1:1" },
-            { value: "auto", label: "Erkin" },
+            // Loyiha formati 1:1 bo'lsa ikkinchi tugma takrorlanmasin.
+            projectAspect === "1:1"
+              ? { value: "16:9" as const, label: "16:9" }
+              : { value: "1:1" as const, label: "1:1" },
+            { value: "auto" as const, label: "Erkin" },
           ]}
           onChange={(v) => setAspect(v as "auto" | GeminiAspect)}
         />

@@ -8,8 +8,8 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // CI har yig'ishda yangi raqam beradi; mahalliy yig'ishda 1.
-        // Ifodani avval o'zgaruvchiga olamiz — `versionCode (x) as Integer`
-        // Groovy'da `(versionCode(x)) as Integer` bo'lib o'qiladi.
+        // `versionCode (x) as Integer` yozib bo'lmaydi — Groovy uni
+        // `(versionCode(x)) as Integer` deb o'qiydi.
         versionCode Integer.parseInt(System.getenv("KIOVO_VERSION_CODE") ?: "1")
         versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

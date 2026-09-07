@@ -298,12 +298,12 @@ button {
 
 .project-thumb {
   width: 46px;
-  height: 76px;
+  height: auto;
+  max-height: 82px;
   border-radius: 9px;
   flex: 0 0 auto;
   background: var(--bg-2);
   border: 1px solid var(--border);
-  object-fit: cover;
 }
 
 .project-row .meta {
@@ -340,9 +340,16 @@ button {
   border-bottom: 1px solid var(--border-soft);
 }
 
+.stage-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
 .stage-canvas-wrap {
   position: relative;
-  margin: 0 auto;
+  flex: 0 0 auto;
   border-radius: 14px;
   overflow: hidden;
   background: #000;

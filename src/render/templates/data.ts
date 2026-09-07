@@ -53,7 +53,7 @@ export const statTemplate: TemplateDef = {
   },
   draw(rc) {
     drawBackground(rc);
-    const { ctx, W, H, brand, t, dur, data } = rc;
+    const { ctx, H, u, brand, t, dur, data } = rc;
     const p = pad(rc);
     const cw = contentWidth(rc);
     const fade = sceneFade(rc);
@@ -71,12 +71,12 @@ export const statTemplate: TemplateDef = {
       const ta = anim(t, 120, 520, easeOutQuint);
       ctx.save();
       ctx.globalAlpha = fade * ta;
-      ctx.translate(0, (1 - ta) * W * 0.03);
-      ctx.font = font(500, W * 0.048);
+      ctx.translate(0, (1 - ta) * u * 0.03);
+      ctx.font = font(500, u * 0.048);
       ctx.fillStyle = brand.muted;
       ctx.fillText(title, p, y);
       ctx.restore();
-      y += W * 0.085;
+      y += u * 0.085;
     }
 
     // Sanoqchi: 0 dan qiymatgacha.
@@ -90,9 +90,9 @@ export const statTemplate: TemplateDef = {
     const big = fitText(ctx, text, {
       maxWidth: cw,
       maxLines: 1,
-      size: W * 0.19,
+      size: u * 0.19,
       weight: 900,
-      minSize: W * 0.09,
+      minSize: u * 0.09,
     });
     const pop = anim(t, 220, 520, easeOutBack);
     ctx.save();
@@ -110,18 +110,18 @@ export const statTemplate: TemplateDef = {
       const la = anim(t, 520, 520, easeOutQuint);
       ctx.save();
       ctx.globalAlpha = fade * la;
-      ctx.font = font(500, W * 0.042, true);
+      ctx.font = font(500, u * 0.042, true);
       ctx.fillStyle = alpha(brand.text, 0.7);
       ctx.fillText(label.toUpperCase(), p, y);
       ctx.restore();
-      y += W * 0.09;
+      y += u * 0.09;
     }
 
     if (data.icons) {
       const cols = 8;
       const gapX = cw / cols;
       const size = gapX * 0.95;
-      const rowY = y + W * 0.06;
+      const rowY = y + u * 0.06;
       const fillRatio = clamp(num(data.fill, 25) / 100, 0, 1);
       for (let i = 0; i < cols; i++) {
         const a = anim(t, 640 + i * 70, 460, easeOutBack);
@@ -168,7 +168,7 @@ export const chartTemplate: TemplateDef = {
   },
   draw(rc) {
     drawBackground(rc);
-    const { ctx, W, H, brand, t, data } = rc;
+    const { ctx, H, u, brand, t, data } = rc;
     const p = pad(rc);
     const cw = contentWidth(rc);
     const fade = sceneFade(rc);
@@ -185,7 +185,7 @@ export const chartTemplate: TemplateDef = {
     const title = fitRich(ctx, String(data.title ?? ""), {
       maxWidth: cw,
       maxLines: 2,
-      size: W * 0.08,
+      size: u * 0.08,
       weight: 900,
     });
     let y = H * 0.2;
@@ -194,11 +194,11 @@ export const chartTemplate: TemplateDef = {
       const a = anim(t, 120 + i * 80, 540, easeOutQuint);
       ctx.save();
       ctx.globalAlpha = fade * a;
-      ctx.translate(0, (1 - a) * W * 0.03);
+      ctx.translate(0, (1 - a) * u * 0.03);
       drawRichLine(ctx, title.lines[i], p, y + i * title.lineHeight, brand.text, brand.accent);
       ctx.restore();
     }
-    y += title.lines.length * title.lineHeight + W * 0.07;
+    y += title.lines.length * title.lineHeight + u * 0.07;
 
     if (!pairs.length) {
       ctx.restore();
@@ -228,7 +228,7 @@ export const chartTemplate: TemplateDef = {
       const a = anim(t, delay, 760, easeOutExpo);
       if (a <= 0.001) continue;
       const s = pairs[i];
-      const h = (s.value / max) * (chartH - W * 0.1) * a;
+      const h = (s.value / max) * (chartH - u * 0.1) * a;
       const x = p + i * (barW + gap);
       const top = baseY - h;
       const isLast = i === pairs.length - 1;
@@ -239,25 +239,25 @@ export const chartTemplate: TemplateDef = {
       g.addColorStop(1, alpha(color, 0.25));
       ctx.save();
       ctx.globalAlpha = fade;
-      roundRect(ctx, x, top, barW, Math.max(h, 2), Math.min(barW * 0.22, W * 0.02));
+      roundRect(ctx, x, top, barW, Math.max(h, 2), Math.min(barW * 0.22, u * 0.02));
       ctx.fillStyle = g;
       ctx.fill();
 
       // Qiymat.
       ctx.textAlign = "center";
-      ctx.font = font(700, Math.min(barW * 0.3, W * 0.035), true);
+      ctx.font = font(700, Math.min(barW * 0.3, u * 0.035), true);
       ctx.fillStyle = isLast ? brand.accent : alpha(brand.text, 0.8);
       ctx.globalAlpha = fade * a;
       ctx.fillText(
         `${formatNumber(s.value * a)}${unit ? ` ${unit}` : ""}`,
         x + barW / 2,
-        top - W * 0.05,
+        top - u * 0.05,
       );
 
       // Nom.
-      ctx.font = font(500, Math.min(barW * 0.26, W * 0.03), true);
+      ctx.font = font(500, Math.min(barW * 0.26, u * 0.03), true);
       ctx.fillStyle = alpha(brand.muted, 0.95);
-      ctx.fillText(s.label.toUpperCase(), x + barW / 2, baseY + W * 0.025);
+      ctx.fillText(s.label.toUpperCase(), x + barW / 2, baseY + u * 0.025);
       ctx.restore();
     }
 
@@ -291,7 +291,7 @@ export const compareTemplate: TemplateDef = {
   },
   draw(rc) {
     drawBackground(rc);
-    const { ctx, W, H, brand, t, data } = rc;
+    const { ctx, H, u, brand, t, data } = rc;
     const p = pad(rc);
     const cw = contentWidth(rc);
     const fade = sceneFade(rc);
@@ -306,7 +306,7 @@ export const compareTemplate: TemplateDef = {
     const title = fitRich(ctx, String(data.title ?? ""), {
       maxWidth: cw,
       maxLines: 2,
-      size: W * 0.078,
+      size: u * 0.078,
       weight: 900,
     });
     let y = H * 0.19;
@@ -315,19 +315,19 @@ export const compareTemplate: TemplateDef = {
       const a = anim(t, 100 + i * 80, 540, easeOutQuint);
       ctx.save();
       ctx.globalAlpha = fade * a;
-      ctx.translate(0, (1 - a) * W * 0.03);
+      ctx.translate(0, (1 - a) * u * 0.03);
       drawRichLine(ctx, title.lines[i], p, y + i * title.lineHeight, brand.text, brand.accent);
       ctx.restore();
     }
-    y += title.lines.length * title.lineHeight + W * 0.06;
+    y += title.lines.length * title.lineHeight + u * 0.06;
 
-    const colGap = W * 0.04;
+    const colGap = u * 0.04;
     const colW = (cw - colGap) / 2;
 
-    const inner = W * 0.035;
-    const titleGap = W * 0.075;
-    const itemGap = W * 0.028;
-    const itemWidth = colW - inner * 2 - W * 0.03;
+    const inner = u * 0.035;
+    const titleGap = u * 0.075;
+    const itemGap = u * 0.028;
+    const itemWidth = colW - inner * 2 - u * 0.03;
 
     const columns = [
       {
@@ -354,7 +354,7 @@ export const compareTemplate: TemplateDef = {
         fitText(ctx, text, {
           maxWidth: itemWidth,
           maxLines: 3,
-          size: W * 0.036,
+          size: u * 0.036,
           weight: 500,
           lineHeightRatio: 1.25,
         }),
@@ -374,20 +374,20 @@ export const compareTemplate: TemplateDef = {
       if (ca <= 0.001) continue;
       ctx.save();
       ctx.globalAlpha = fade * ca;
-      ctx.translate(0, (1 - ca) * W * 0.05);
+      ctx.translate(0, (1 - ca) * u * 0.05);
       glassCard(
         ctx,
         col.x,
         y,
         colW,
         colH,
-        W * 0.035,
+        u * 0.035,
         alpha(brand.surface, 0.7),
         alpha(col.color, 0.4),
         2.5,
       );
 
-      ctx.font = font(700, W * 0.032, true);
+      ctx.font = font(700, u * 0.032, true);
       ctx.fillStyle = col.color;
       ctx.fillText(col.title.toUpperCase(), col.x + inner, y + inner);
 
@@ -400,12 +400,12 @@ export const compareTemplate: TemplateDef = {
         ctx.globalAlpha = fade * ca * ia;
         ctx.fillStyle = col.dot;
         ctx.beginPath();
-        ctx.arc(col.x + inner + W * 0.008, iy + item.size * 0.55, W * 0.008, 0, Math.PI * 2);
+        ctx.arc(col.x + inner + u * 0.008, iy + item.size * 0.55, u * 0.008, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = brand.text;
         ctx.font = font(500, item.size);
         for (let l = 0; l < item.lines.length; l++) {
-          ctx.fillText(item.lines[l], col.x + inner + W * 0.03, iy + l * item.lineHeight);
+          ctx.fillText(item.lines[l], col.x + inner + u * 0.03, iy + l * item.lineHeight);
         }
         ctx.restore();
         iy += item.lines.length * item.lineHeight + itemGap;
@@ -437,7 +437,7 @@ export const stepsTemplate: TemplateDef = {
   },
   draw(rc) {
     drawBackground(rc);
-    const { ctx, W, H, brand, t, data } = rc;
+    const { ctx, H, u, brand, t, data } = rc;
     const p = pad(rc);
     const cw = contentWidth(rc);
     const fade = sceneFade(rc);
@@ -456,7 +456,7 @@ export const stepsTemplate: TemplateDef = {
     const title = fitRich(ctx, String(data.title ?? ""), {
       maxWidth: cw,
       maxLines: 2,
-      size: W * 0.08,
+      size: u * 0.08,
       weight: 900,
     });
     let y = H * 0.2;
@@ -465,11 +465,11 @@ export const stepsTemplate: TemplateDef = {
       const a = anim(t, 100 + i * 80, 540, easeOutQuint);
       ctx.save();
       ctx.globalAlpha = fade * a;
-      ctx.translate(0, (1 - a) * W * 0.03);
+      ctx.translate(0, (1 - a) * u * 0.03);
       drawRichLine(ctx, title.lines[i], p, y + i * title.lineHeight, brand.text, brand.accent);
       ctx.restore();
     }
-    y += title.lines.length * title.lineHeight + W * 0.07;
+    y += title.lines.length * title.lineHeight + u * 0.07;
 
     if (!steps.length) {
       ctx.restore();
@@ -478,7 +478,7 @@ export const stepsTemplate: TemplateDef = {
     }
 
     const available = Math.min(H * 0.5, H * 0.88 - y);
-    const arrowH = W * 0.055;
+    const arrowH = u * 0.055;
     const cardH = (available - arrowH * (steps.length - 1)) / steps.length;
 
     for (let i = 0; i < steps.length; i++) {
@@ -488,21 +488,21 @@ export const stepsTemplate: TemplateDef = {
       const cardY = y + i * (cardH + arrowH);
       ctx.save();
       ctx.globalAlpha = fade * a;
-      ctx.translate((1 - a) * W * 0.05, 0);
+      ctx.translate((1 - a) * u * 0.05, 0);
       glassCard(
         ctx,
         p,
         cardY,
         cw,
         cardH,
-        W * 0.032,
+        u * 0.032,
         alpha(brand.surface, 0.8),
         alpha(brand.accent, 0.35),
         2.5,
       );
       const badge = cardH * 0.46;
       ctx.save();
-      ctx.translate(p + W * 0.045 + badge / 2, cardY + cardH / 2);
+      ctx.translate(p + u * 0.045 + badge / 2, cardY + cardH / 2);
       roundRect(ctx, -badge / 2, -badge / 2, badge, badge, badge * 0.32);
       ctx.fillStyle = alpha(brand.accent, 0.18);
       ctx.fill();
@@ -515,11 +515,11 @@ export const stepsTemplate: TemplateDef = {
 
       ctx.textAlign = "left";
       ctx.textBaseline = "middle";
-      const tx = p + W * 0.045 + badge + W * 0.045;
+      const tx = p + u * 0.045 + badge + u * 0.045;
       const item = fitText(ctx, steps[i], {
-        maxWidth: cw - (tx - p) - W * 0.045,
+        maxWidth: cw - (tx - p) - u * 0.045,
         maxLines: 2,
-        size: W * 0.05,
+        size: u * 0.05,
         weight: 700,
         lineHeightRatio: 1.2,
       });

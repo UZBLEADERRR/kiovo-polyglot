@@ -5,6 +5,7 @@ import {
   useImperativeHandle,
   useLayoutEffect,
   useRef,
+  useState,
 } from "react";
 import { ASPECTS, type Project } from "../types";
 import { layoutScenes, renderFrame, totalDuration } from "../render/engine";
@@ -32,8 +33,12 @@ export const Player = forwardRef<PlayerHandle, Props>(function Player(
   { project, images, playing, onPlayingChange, onTimeUpdate, maxHeight },
   ref,
 ) {
-  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const frameRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  // Ko'rsatish o'lchami JS'da hisoblanadi: faqat CSS `aspect-ratio` ga
+  // tayanilsa, kenglik `max-width` bilan qisilganda balandlik o'zgarmay
+  // qolib, kadr cho'zilib ketadi.
+  const [box, setBox] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
   const timeRef = useRef(0);
   const rafRef = useRef(0);
   const lastTsRef = useRef(0);
@@ -71,33 +76,43 @@ export const Player = forwardRef<PlayerHandle, Props>(function Player(
     [draw, onTimeUpdate],
   );
 
-  // Kanvas o'lchamini konteynerga moslash.
+  // Kanvas o'lchamini konteynerga moslash — nisbat har doim saqlanadi.
   useLayoutEffect(() => {
-    const wrap = wrapRef.current;
+    const frame = frameRef.current;
     const canvas = canvasRef.current;
-    if (!wrap || !canvas) return;
+    if (!frame || !canvas) return;
+    const aspect = ASPECTS[project.aspect];
+    const ratio = aspect.w / aspect.h;
 
     const resize = () => {
-      const rect = wrap.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      let h = Math.round(rect.height * dpr);
-      let w = Math.round(rect.width * dpr);
-      if (h > MAX_BACKING_HEIGHT) {
-        const k = MAX_BACKING_HEIGHT / h;
-        h = MAX_BACKING_HEIGHT;
-        w = Math.round(w * k);
+      const availW = frame.clientWidth;
+      const availH = frame.clientHeight;
+      if (!availW || !availH) return;
+
+      let w = availW;
+      let h = w / ratio;
+      if (h > availH) {
+        h = availH;
+        w = h * ratio;
       }
-      if (canvas.width !== w || canvas.height !== h) {
-        canvas.width = Math.max(2, w);
-        canvas.height = Math.max(2, h);
+      w = Math.floor(w);
+      h = Math.floor(h);
+      setBox((prev) => (prev.w === w && prev.h === h ? prev : { w, h }));
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      let bh = Math.round(h * dpr);
+      if (bh > MAX_BACKING_HEIGHT) bh = MAX_BACKING_HEIGHT;
+      const bw = Math.max(2, Math.round(bh * ratio));
+      if (canvas.width !== bw || canvas.height !== Math.max(2, bh)) {
+        canvas.width = bw;
+        canvas.height = Math.max(2, bh);
         draw();
       }
     };
 
     resize();
     const ro = new ResizeObserver(resize);
-    ro.observe(wrap);
+    ro.observe(frame);
     window.addEventListener("orientationchange", resize);
     return () => {
       ro.disconnect();
@@ -143,26 +158,25 @@ export const Player = forwardRef<PlayerHandle, Props>(function Player(
     return () => cancelAnimationFrame(rafRef.current);
   }, [playing, draw, onPlayingChange, onTimeUpdate]);
 
-  const aspect = ASPECTS[project.aspect];
-
   return (
     <div
-      className="stage-canvas-wrap"
-      ref={wrapRef}
-      style={{
-        aspectRatio: `${aspect.w} / ${aspect.h}`,
-        height: maxHeight ? `${maxHeight}px` : "min(44dvh, 480px)",
-        maxWidth: "100%",
-      }}
+      className="stage-frame"
+      ref={frameRef}
+      style={{ height: maxHeight ? `${maxHeight}px` : "min(44dvh, 480px)" }}
     >
-      <canvas ref={canvasRef} />
-      <button
-        className="stage-tap"
-        onClick={() => onPlayingChange(!playing)}
-        aria-label={playing ? "To'xtatish" : "Ijro etish"}
+      <div
+        className="stage-canvas-wrap"
+        style={box.w ? { width: `${box.w}px`, height: `${box.h}px` } : { visibility: "hidden" }}
       >
-        <span className={`play-badge${playing ? " hidden" : ""}`}>{playing ? "❚❚" : "▶"}</span>
-      </button>
+        <canvas ref={canvasRef} />
+        <button
+          className="stage-tap"
+          onClick={() => onPlayingChange(!playing)}
+          aria-label={playing ? "To'xtatish" : "Ijro etish"}
+        >
+          <span className={`play-badge${playing ? " hidden" : ""}`}>{playing ? "❚❚" : "▶"}</span>
+        </button>
+      </div>
     </div>
   );
 });

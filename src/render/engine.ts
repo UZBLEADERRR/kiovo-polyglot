@@ -76,6 +76,8 @@ function drawScene(
     ctx,
     W: aspect.w,
     H: aspect.h,
+    // 9:16 da bu aynan kenglikka teng — portret dizayn o'zgarmaydi.
+    u: Math.min(aspect.w, aspect.h * 0.72),
     t,
     dur,
     p: t / dur,

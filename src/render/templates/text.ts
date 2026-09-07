@@ -40,7 +40,7 @@ export const hookTemplate: TemplateDef = {
   },
   draw(rc) {
     drawBackground(rc);
-    const { ctx, W, H, brand, t, data } = rc;
+    const { ctx, W, H, u, brand, t, data } = rc;
     const p = pad(rc);
     const cw = contentWidth(rc);
     const center = data.align === "center";
@@ -56,22 +56,22 @@ export const hookTemplate: TemplateDef = {
     const head = fitRich(ctx, String(data.headline ?? ""), {
       maxWidth: cw,
       maxLines: 4,
-      size: W * 0.125,
+      size: u * 0.125,
       weight: 900,
     });
 
-    ctx.font = font(400, W * 0.05);
+    ctx.font = font(400, u * 0.05);
     const sub = fitText(ctx, String(data.subline ?? ""), {
       maxWidth: cw,
       maxLines: 3,
-      size: W * 0.05,
+      size: u * 0.05,
       weight: 400,
       lineHeightRatio: 1.3,
     });
 
     // Sarlavha → aksent chizig'i → tagsarlavha oralig'i.
-    const ruleTop = W * 0.075;
-    const ruleBottom = W * 0.06;
+    const ruleTop = u * 0.075;
+    const ruleBottom = u * 0.06;
     const headH = head.lines.length * head.lineHeight;
     const subH = String(data.subline ?? "").trim() ? sub.lines.length * sub.lineHeight : 0;
     const totalH = headH + ruleTop + ruleBottom + subH;
@@ -85,7 +85,7 @@ export const hookTemplate: TemplateDef = {
       const x = center ? (W - line.width) / 2 : p;
       ctx.save();
       ctx.globalAlpha = fade * a;
-      ctx.translate(0, (1 - a) * W * 0.05);
+      ctx.translate(0, (1 - a) * u * 0.05);
       drawRichLine(ctx, line, x, y + i * head.lineHeight, brand.text, brand.accent);
       ctx.restore();
     }
@@ -105,7 +105,7 @@ export const hookTemplate: TemplateDef = {
         const x = center ? (W - ctx.measureText(line).width) / 2 : p;
         ctx.save();
         ctx.globalAlpha = fade * a;
-        ctx.translate(0, (1 - a) * W * 0.03);
+        ctx.translate(0, (1 - a) * u * 0.03);
         ctx.fillText(line, x, y + i * sub.lineHeight);
         ctx.restore();
       }
@@ -146,7 +146,7 @@ export const bulletsTemplate: TemplateDef = {
   },
   draw(rc) {
     drawBackground(rc);
-    const { ctx, W, H, brand, t, dur, data } = rc;
+    const { ctx, H, u, brand, t, dur, data } = rc;
     const p = pad(rc);
     const cw = contentWidth(rc);
     const items = (Array.isArray(data.items) ? data.items : []).map(String).filter((s) => s.trim());
@@ -163,7 +163,7 @@ export const bulletsTemplate: TemplateDef = {
     const title = fitRich(ctx, String(data.title ?? ""), {
       maxWidth: cw,
       maxLines: 2,
-      size: W * 0.085,
+      size: u * 0.085,
       weight: 900,
     });
 
@@ -173,13 +173,13 @@ export const bulletsTemplate: TemplateDef = {
       const a = anim(t, 120 + i * 80, 560, easeOutQuint);
       ctx.save();
       ctx.globalAlpha = fade * a;
-      ctx.translate(0, (1 - a) * W * 0.035);
+      ctx.translate(0, (1 - a) * u * 0.035);
       drawRichLine(ctx, title.lines[i], p, y + i * title.lineHeight, brand.text, brand.accent);
       ctx.restore();
     }
-    y += title.lines.length * title.lineHeight + W * 0.06;
+    y += title.lines.length * title.lineHeight + u * 0.06;
 
-    const rowH = Math.min(W * 0.165, (H * 0.62 - (y - H * 0.2)) / Math.max(items.length, 1));
+    const rowH = Math.min(u * 0.165, (H * 0.62 - (y - H * 0.2)) / Math.max(items.length, 1));
     const badge = rowH * 0.52;
     const step = Math.max(220, Math.min(420, (dur - 900) / Math.max(items.length, 1)));
 
@@ -190,15 +190,15 @@ export const bulletsTemplate: TemplateDef = {
       const rowY = y + i * rowH;
       ctx.save();
       ctx.globalAlpha = fade * a;
-      ctx.translate((1 - a) * W * 0.06, 0);
+      ctx.translate((1 - a) * u * 0.06, 0);
 
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
-      const textX = p + badge + W * 0.045;
+      const textX = p + badge + u * 0.045;
       const item = fitText(ctx, items[i], {
-        maxWidth: cw - (badge + W * 0.045),
+        maxWidth: cw - (badge + u * 0.045),
         maxLines: 2,
-        size: W * 0.048,
+        size: u * 0.048,
         weight: 500,
         lineHeightRatio: 1.22,
       });
@@ -282,7 +282,7 @@ export const quoteTemplate: TemplateDef = {
   },
   draw(rc) {
     drawBackground(rc);
-    const { ctx, W, H, brand, t, data } = rc;
+    const { ctx, H, u, brand, t, data } = rc;
     const p = pad(rc);
     const cw = contentWidth(rc);
     const fade = sceneFade(rc);
@@ -296,14 +296,14 @@ export const quoteTemplate: TemplateDef = {
     ctx.save();
     ctx.globalAlpha = fade * markA * 0.25;
     ctx.fillStyle = brand.accent;
-    ctx.font = font(900, W * 0.28);
-    ctx.fillText("“", p - W * 0.015, H * 0.2 - W * 0.06);
+    ctx.font = font(900, u * 0.28);
+    ctx.fillText("“", p - u * 0.015, H * 0.2 - u * 0.06);
     ctx.restore();
 
     const q = fitRich(ctx, String(data.quote ?? ""), {
       maxWidth: cw,
       maxLines: 6,
-      size: W * 0.078,
+      size: u * 0.078,
       weight: 700,
       lineHeightRatio: 1.22,
     });
@@ -316,21 +316,21 @@ export const quoteTemplate: TemplateDef = {
       if (a <= 0.001) continue;
       ctx.save();
       ctx.globalAlpha = fade * a;
-      ctx.translate(0, (1 - a) * W * 0.04);
+      ctx.translate(0, (1 - a) * u * 0.04);
       drawRichLine(ctx, q.lines[i], p, y + i * q.lineHeight, brand.text, brand.accent);
       ctx.restore();
     }
-    y += totalH + W * 0.075;
+    y += totalH + u * 0.075;
 
     const author = String(data.author ?? "").trim();
     if (author) {
       const aa = anim(t, 620, 560, easeOutQuint);
       ctx.save();
       ctx.globalAlpha = fade * aa;
-      ctx.translate(0, (1 - aa) * W * 0.03);
+      ctx.translate(0, (1 - aa) * u * 0.03);
       const avatarId = String(data.avatar ?? "");
       const img = avatarId ? rc.images.get(avatarId) : undefined;
-      const s = W * 0.11;
+      const s = u * 0.11;
       let x = p;
       if (img) {
         ctx.save();
@@ -344,16 +344,16 @@ export const quoteTemplate: TemplateDef = {
         ctx.beginPath();
         ctx.arc(x + s / 2, y + s / 2, s / 2, 0, Math.PI * 2);
         ctx.stroke();
-        x += s + W * 0.035;
+        x += s + u * 0.035;
       }
       ctx.fillStyle = brand.text;
-      ctx.font = font(700, W * 0.042);
+      ctx.font = font(700, u * 0.042);
       ctx.fillText(author, x, y + (img ? s * 0.12 : 0));
       const role = String(data.role ?? "").trim();
       if (role) {
         ctx.fillStyle = alpha(brand.muted, 0.9);
-        ctx.font = font(500, W * 0.032, true);
-        ctx.fillText(role.toUpperCase(), x, y + (img ? s * 0.12 : 0) + W * 0.058);
+        ctx.font = font(500, u * 0.032, true);
+        ctx.fillText(role.toUpperCase(), x, y + (img ? s * 0.12 : 0) + u * 0.058);
       }
       ctx.restore();
     }
@@ -386,7 +386,7 @@ export const statementTemplate: TemplateDef = {
   },
   draw(rc: RenderContext) {
     drawBackground(rc);
-    const { ctx, W, H, brand, t, data } = rc;
+    const { ctx, W, H, u, brand, t, data } = rc;
     const p = pad(rc);
     const cw = contentWidth(rc);
     const fade = sceneFade(rc);
@@ -397,11 +397,11 @@ export const statementTemplate: TemplateDef = {
     ctx.textBaseline = "top";
     ctx.textAlign = "left";
 
-    const inset = boxed ? W * 0.055 : 0;
+    const inset = boxed ? u * 0.055 : 0;
     const body = fitRich(ctx, String(data.text ?? ""), {
       maxWidth: cw - inset * 2,
       maxLines: 5,
-      size: W * 0.115,
+      size: u * 0.115,
       weight: 900,
       lineHeightRatio: 1.12,
     });
@@ -420,7 +420,7 @@ export const statementTemplate: TemplateDef = {
         boxY,
         cw,
         boxH,
-        W * 0.045,
+        u * 0.045,
         alpha(brand.surface, 0.75),
         alpha(brand.accent, 0.35),
         2.5,
@@ -436,7 +436,7 @@ export const statementTemplate: TemplateDef = {
       const x = p + inset + (cw - inset * 2 - line.width) / 2;
       ctx.save();
       ctx.globalAlpha = fade * a;
-      ctx.translate(0, (1 - a) * W * 0.045);
+      ctx.translate(0, (1 - a) * u * 0.045);
       drawRichLine(ctx, line, x, boxY + inset + i * body.lineHeight, brand.text, brand.accent);
       ctx.restore();
     }
@@ -445,10 +445,10 @@ export const statementTemplate: TemplateDef = {
       const na = anim(t, 520, 560, easeOutQuint);
       ctx.save();
       ctx.globalAlpha = fade * na * 0.85;
-      ctx.font = font(500, W * 0.034, true);
+      ctx.font = font(500, u * 0.034, true);
       ctx.fillStyle = brand.muted;
       const nw = ctx.measureText(note.toUpperCase()).width;
-      ctx.fillText(note.toUpperCase(), (W - nw) / 2, boxY + boxH + W * 0.06);
+      ctx.fillText(note.toUpperCase(), (W - nw) / 2, boxY + boxH + u * 0.06);
       ctx.restore();
     }
 

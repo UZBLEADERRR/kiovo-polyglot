@@ -47,7 +47,7 @@ export const cutoutTemplate: TemplateDef = {
   },
   draw(rc) {
     drawBackground(rc);
-    const { ctx, W, H, brand, t, data } = rc;
+    const { ctx, W, H, u, brand, t, data } = rc;
     const p = pad(rc);
     const cw = contentWidth(rc);
     const fade = sceneFade(rc);
@@ -63,7 +63,7 @@ export const cutoutTemplate: TemplateDef = {
     const head = fitRich(ctx, String(data.headline ?? ""), {
       maxWidth: cw,
       maxLines: 3,
-      size: W * 0.085,
+      size: u * 0.085,
       weight: 900,
       lineHeightRatio: 1.1,
     });
@@ -74,7 +74,7 @@ export const cutoutTemplate: TemplateDef = {
       if (a <= 0.001) continue;
       ctx.save();
       ctx.globalAlpha = fade * a;
-      ctx.translate(0, (1 - a) * W * 0.035);
+      ctx.translate(0, (1 - a) * u * 0.035);
       drawRichLine(ctx, head.lines[i], p, headTop + i * head.lineHeight, brand.text, brand.accent);
       ctx.restore();
     }
@@ -83,9 +83,9 @@ export const cutoutTemplate: TemplateDef = {
 
     // --- Obyekt ---
     const img = data.image ? rc.images.get(String(data.image)) : undefined;
-    const boxTop = headBottom + W * 0.06;
+    const boxTop = headBottom + u * 0.06;
     const boxBottom = H * 0.86;
-    const boxH = Math.max(W * 0.3, boxBottom - boxTop);
+    const boxH = Math.max(u * 0.3, boxBottom - boxTop);
     const cx = W / 2;
     const cy = boxTop + boxH / 2;
     const scaleUser = clamp(Number(data.size ?? 100) / 100, 0.4, 1.3);
@@ -114,7 +114,7 @@ export const cutoutTemplate: TemplateDef = {
 
       // Harakat parametrlari.
       const enter = anim(t, 180, 820, effect === "pop" ? easeOutBack : easeOutQuint);
-      const bob = Math.sin(t / 900) * W * 0.012;
+      const bob = Math.sin(t / 900) * u * 0.012;
       const tilt = Math.sin(t / 1400) * 0.018;
       let scale = 1;
       let dx = 0;
@@ -123,8 +123,9 @@ export const cutoutTemplate: TemplateDef = {
 
       if (effect === "pop") {
         scale = mix(0.62, 1, enter);
-        dy = bob + (1 - enter) * W * 0.06;
+        dy = bob + (1 - enter) * u * 0.06;
       } else if (effect === "slide") {
+        // Kadr chetidan kirib kelishi uchun masofa kenglikka bog'lanadi.
         dx = (1 - enter) * -W * 0.55;
         dy = bob;
       } else if (effect === "spin") {
@@ -132,7 +133,7 @@ export const cutoutTemplate: TemplateDef = {
         rot = tilt + (1 - enter) * -0.35;
       } else {
         scale = mix(0.94, 1, enter);
-        dy = bob + (1 - enter) * W * 0.03;
+        dy = bob + (1 - enter) * u * 0.03;
       }
 
       if (data.shadow) {
@@ -143,9 +144,9 @@ export const cutoutTemplate: TemplateDef = {
         ctx.beginPath();
         ctx.ellipse(
           cx + dx * 0.4,
-          cy + dh / 2 + W * 0.03,
+          cy + dh / 2 + u * 0.03,
           (dw / 2) * 0.62 * scale,
-          W * 0.022,
+          u * 0.022,
           0,
           0,
           Math.PI * 2,
@@ -173,14 +174,14 @@ export const cutoutTemplate: TemplateDef = {
         cy - boxH * 0.32,
         cw,
         boxH * 0.64,
-        W * 0.045,
+        u * 0.045,
         alpha(brand.surface, 0.4),
         alpha(brand.muted, 0.6),
         3,
       );
       ctx.setLineDash([]);
       ctx.fillStyle = brand.muted;
-      ctx.font = font(500, W * 0.034, true);
+      ctx.font = font(500, u * 0.034, true);
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText("FONSIZ RASM TANLANMAGAN", W / 2, cy);
@@ -198,7 +199,7 @@ export const cutoutTemplate: TemplateDef = {
       const cap = fitText(ctx, caption, {
         maxWidth: cw,
         maxLines: 2,
-        size: W * 0.042,
+        size: u * 0.042,
         weight: 500,
         lineHeightRatio: 1.25,
       });

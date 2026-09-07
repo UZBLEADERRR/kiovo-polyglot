@@ -54,7 +54,7 @@ export const imageTemplate: TemplateDef = {
     frame: "full",
   },
   draw(rc) {
-    const { ctx, W, H, brand, t, dur, data } = rc;
+    const { ctx, W, H, u, brand, t, dur, data } = rc;
     const p = pad(rc);
     const cw = contentWidth(rc);
     const fade = sceneFade(rc);
@@ -103,11 +103,11 @@ export const imageTemplate: TemplateDef = {
         ctx.scale(scale, scale);
         ctx.translate(-W / 2, -(cardY + cardH / 2));
         ctx.save();
-        roundRect(ctx, p, cardY, cw, cardH, W * 0.045);
+        roundRect(ctx, p, cardY, cw, cardH, u * 0.045);
         ctx.clip();
         drawImageCover(ctx, img, p, cardY, cw, cardH, zoom, panX, 0.5);
         ctx.restore();
-        roundRect(ctx, p, cardY, cw, cardH, W * 0.045);
+        roundRect(ctx, p, cardY, cw, cardH, u * 0.045);
         ctx.strokeStyle = alpha(brand.accent, 0.35);
         ctx.lineWidth = 3;
         ctx.stroke();
@@ -120,10 +120,10 @@ export const imageTemplate: TemplateDef = {
       const boxY = H * 0.2;
       const boxH = H * 0.4;
       ctx.setLineDash([16, 14]);
-      glassCard(ctx, p, boxY, cw, boxH, W * 0.045, alpha(brand.surface, 0.5), alpha(brand.muted, 0.6), 3);
+      glassCard(ctx, p, boxY, cw, boxH, u * 0.045, alpha(brand.surface, 0.5), alpha(brand.muted, 0.6), 3);
       ctx.setLineDash([]);
       ctx.fillStyle = brand.muted;
-      ctx.font = font(500, W * 0.038, true);
+      ctx.font = font(500, u * 0.038, true);
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText("RASM TANLANMAGAN", W / 2, boxY + boxH / 2);
@@ -141,7 +141,7 @@ export const imageTemplate: TemplateDef = {
       const cap = fitRich(ctx, caption, {
         maxWidth: cw,
         maxLines: 4,
-        size: W * 0.068,
+        size: u * 0.068,
         weight: 800,
         lineHeightRatio: 1.18,
       });
@@ -153,7 +153,7 @@ export const imageTemplate: TemplateDef = {
         if (a <= 0.001) continue;
         ctx.save();
         ctx.globalAlpha = fade * a;
-        ctx.translate(0, (1 - a) * W * 0.04);
+        ctx.translate(0, (1 - a) * u * 0.04);
         drawRichLine(ctx, cap.lines[i], p, y + i * cap.lineHeight, brand.text, brand.accent);
         ctx.restore();
       }
@@ -212,7 +212,7 @@ export const codeTemplate: TemplateDef = {
   },
   draw(rc) {
     drawBackground(rc);
-    const { ctx, W, H, brand, t, dur, data } = rc;
+    const { ctx, H, u, brand, t, dur, data } = rc;
     const p = pad(rc);
     const cw = contentWidth(rc);
     const fade = sceneFade(rc);
@@ -227,31 +227,31 @@ export const codeTemplate: TemplateDef = {
     ctx.textAlign = "left";
 
     // Kod o'lchamini eng uzun qatorga moslash.
-    let size = W * 0.042;
-    const inner = W * 0.045;
-    const maxLineW = cw - inner * 2 - W * 0.06;
+    let size = u * 0.042;
+    const inner = u * 0.045;
+    const maxLineW = cw - inner * 2 - u * 0.06;
     for (let guard = 0; guard < 40; guard++) {
       ctx.font = font(400, size, true);
       const widest = lines.reduce((a, l) => Math.max(a, ctx.measureText(l).width), 0);
-      if (widest <= maxLineW || size <= W * 0.018) break;
+      if (widest <= maxLineW || size <= u * 0.018) break;
       size *= 0.95;
     }
     const lh = size * 1.62;
-    const headerH = W * 0.085;
+    const headerH = u * 0.085;
     const boxH = headerH + inner * 1.4 + lines.length * lh;
     const boxY = H * 0.34 - boxH / 2 + H * 0.06;
 
     const appear = anim(t, 60, 620, easeOutQuint);
     ctx.save();
     ctx.globalAlpha = fade * appear;
-    ctx.translate(0, (1 - appear) * W * 0.05);
+    ctx.translate(0, (1 - appear) * u * 0.05);
     glassCard(
       ctx,
       p,
       boxY,
       cw,
       boxH,
-      W * 0.035,
+      u * 0.035,
       alpha(lighten(brand.bg, 0.05), 0.95),
       alpha(brand.text, 0.14),
       2.5,
@@ -259,7 +259,7 @@ export const codeTemplate: TemplateDef = {
 
     // Sarlavha paneli.
     ctx.save();
-    roundRect(ctx, p, boxY, cw, headerH, W * 0.035);
+    roundRect(ctx, p, boxY, cw, headerH, u * 0.035);
     ctx.clip();
     ctx.fillStyle = alpha(brand.text, 0.05);
     ctx.fillRect(p, boxY, cw, headerH);
@@ -309,7 +309,7 @@ export const codeTemplate: TemplateDef = {
       ctx.fillText(String(i + 1).padStart(2, " "), p + inner, lineY + size * 0.12);
 
       ctx.font = font(400, size, true);
-      let x = p + inner + W * 0.05;
+      let x = p + inner + u * 0.05;
       for (const tk of highlight(visible)) {
         ctx.fillStyle = colors[tk.kind];
         ctx.fillText(tk.text, x, lineY);
@@ -331,14 +331,14 @@ export const codeTemplate: TemplateDef = {
       const cap = fitText(ctx, caption, {
         maxWidth: cw,
         maxLines: 2,
-        size: W * 0.05,
+        size: u * 0.05,
         weight: 700,
         lineHeightRatio: 1.24,
       });
       ctx.font = font(700, cap.size);
       ctx.fillStyle = brand.text;
       for (let i = 0; i < cap.lines.length; i++) {
-        ctx.fillText(cap.lines[i], p, boxY + boxH + W * 0.075 + i * cap.lineHeight);
+        ctx.fillText(cap.lines[i], p, boxY + boxH + u * 0.075 + i * cap.lineHeight);
       }
       ctx.restore();
     }

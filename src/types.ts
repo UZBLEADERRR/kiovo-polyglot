@@ -96,6 +96,12 @@ export interface RenderContext {
   /** Virtual kenglik/balandlik (ASPECTS dan). */
   W: number;
   H: number;
+  /**
+   * O'lcham birligi: shrift, oraliq va radiuslar shunga bog'lanadi.
+   * Kenglikka emas, kadrning "tor" tomoniga qarab hisoblanadi — aks holda
+   * gorizontal formatda (16:9) hamma narsa 1.8 barobar katta chiqadi.
+   */
+  u: number;
   /** Sahna boshidan o'tgan vaqt, ms. */
   t: number;
   /** Sahna davomiyligi, ms. */

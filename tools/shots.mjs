@@ -27,6 +27,9 @@ const templates = await page.evaluate(() => window.__api.listTemplates());
 for (const id of templates) {
   const url = await page.evaluate((t) => window.__api.shotTemplate(t, 0.75, 960), id);
   save(`tpl-${id}`, url);
+  // Gorizontal formatni ham tekshiramiz — matn o'lchamlari boshqacha chiqadi.
+  const wide = await page.evaluate((t) => window.__api.shotTemplate(t, 0.75, 540, "16:9"), id);
+  save(`wide-${id}`, wide);
 }
 
 const storyboards = await page.evaluate(() => window.__api.listStoryboards());

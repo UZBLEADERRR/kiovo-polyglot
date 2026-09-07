@@ -27,7 +27,7 @@ export const outroTemplate: TemplateDef = {
   },
   draw(rc) {
     drawBackground(rc, "glow");
-    const { ctx, W, H, brand, t, data } = rc;
+    const { ctx, W, H, u, brand, t, data } = rc;
     const p = pad(rc);
     const cw = contentWidth(rc);
     const fade = sceneFade(rc);
@@ -39,7 +39,7 @@ export const outroTemplate: TemplateDef = {
 
     const logoId = String(data.logo ?? "") || brand.logoAssetId || "";
     const img = logoId ? rc.images.get(logoId) : undefined;
-    const s = W * 0.26;
+    const s = u * 0.26;
     let y = H * 0.28;
 
     const pop = anim(t, 60, 700, easeOutBack);
@@ -89,18 +89,18 @@ export const outroTemplate: TemplateDef = {
     ctx.stroke();
     ctx.restore();
 
-    y += s + W * 0.11;
+    y += s + u * 0.11;
 
     const title = String(data.title ?? "").trim() || brand.name;
     if (title) {
       const a = anim(t, 300, 620, easeOutQuint);
       ctx.save();
       ctx.globalAlpha = fade * a;
-      ctx.translate(0, (1 - a) * W * 0.035);
+      ctx.translate(0, (1 - a) * u * 0.035);
       const fit = fitText(ctx, title, {
         maxWidth: cw,
         maxLines: 2,
-        size: W * 0.105,
+        size: u * 0.105,
         weight: 900,
         lineHeightRatio: 1.12,
       });
@@ -118,11 +118,11 @@ export const outroTemplate: TemplateDef = {
       const a = anim(t, 460, 560, easeOutQuint);
       ctx.save();
       ctx.globalAlpha = fade * a;
-      ctx.font = font(500, W * 0.042, true);
+      ctx.font = font(500, u * 0.042, true);
       ctx.fillStyle = brand.accent;
-      ctx.fillText(handle, W / 2, y + W * 0.03);
+      ctx.fillText(handle, W / 2, y + u * 0.03);
       ctx.restore();
-      y += W * 0.1;
+      y += u * 0.1;
     }
 
     const cta = String(data.cta ?? "").trim();
@@ -130,12 +130,12 @@ export const outroTemplate: TemplateDef = {
       const a = anim(t, 640, 620, easeOutBack);
       ctx.save();
       ctx.globalAlpha = fade * a;
-      ctx.font = font(700, W * 0.046);
+      ctx.font = font(700, u * 0.046);
       const tw = ctx.measureText(cta).width;
-      const bw = tw + W * 0.13;
-      const bh = W * 0.13;
+      const bw = tw + u * 0.13;
+      const bh = u * 0.13;
       const bx = (W - bw) / 2;
-      const by = y + W * 0.04;
+      const by = y + u * 0.04;
       const pulse = 1 + Math.sin(t / 420) * 0.015;
       ctx.translate(W / 2, by + bh / 2);
       ctx.scale(pulse * a, pulse * a);
@@ -148,7 +148,7 @@ export const outroTemplate: TemplateDef = {
       ctx.fillText(cta, W / 2, by + bh / 2 + 1);
       ctx.textBaseline = "top";
       ctx.restore();
-      y += W * 0.2;
+      y += u * 0.2;
     }
 
     const note = String(data.note ?? "").trim();
@@ -156,9 +156,9 @@ export const outroTemplate: TemplateDef = {
       const a = anim(t, 840, 520, easeOutQuint);
       ctx.save();
       ctx.globalAlpha = fade * a * 0.8;
-      ctx.font = font(500, W * 0.03, true);
+      ctx.font = font(500, u * 0.03, true);
       ctx.fillStyle = brand.muted;
-      ctx.fillText(note.toUpperCase(), W / 2, Math.min(y + W * 0.02, H - p));
+      ctx.fillText(note.toUpperCase(), W / 2, Math.min(y + u * 0.02, H - p));
       ctx.restore();
     }
 

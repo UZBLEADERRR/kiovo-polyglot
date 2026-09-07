@@ -20,7 +20,7 @@ export function drawKicker(rc: RenderContext, text: string, y?: number, delay = 
   const raw = String(text ?? "").trim();
   if (!raw) return;
   const p = pad(rc);
-  const size = Math.round(rc.W * 0.026);
+  const size = Math.round(rc.u * 0.026);
   const top = y ?? Math.round(rc.H * 0.09);
   const a = anim(t, delay, 420);
   if (a <= 0.001) return;
@@ -52,7 +52,7 @@ export function drawWatermark(rc: RenderContext) {
   const label = [brand.name, brand.handle].filter(Boolean).join("   /   ");
   if (!label) return;
   const p = pad(rc);
-  const size = Math.round(rc.W * 0.022);
+  const size = Math.round(rc.u * 0.022);
   const y = H - Math.round(H * 0.045);
   const a = anim(t, 260, 500);
 
@@ -93,7 +93,7 @@ export function drawRule(
   if (a <= 0.001) return;
   ctx.save();
   ctx.fillStyle = color ?? brand.accent;
-  ctx.fillRect(x, y, width * a, Math.max(3, rc.W * 0.0045));
+  ctx.fillRect(x, y, width * a, Math.max(3, rc.u * 0.0045));
   ctx.restore();
 }
 
