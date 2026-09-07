@@ -90,7 +90,8 @@ export const cutoutTemplate: TemplateDef = {
     const cy = boxTop + boxH / 2;
     const scaleUser = clamp(Number(data.size ?? 100) / 100, 0.4, 1.3);
 
-    if (data.glow) {
+    // Yorug'lik obyekt orqasida turadi — rasm yo'q bo'lsa u ortiqcha.
+    if (data.glow && img) {
       const ga = anim(t, 60, 900);
       const r = Math.min(cw, boxH) * 0.92;
       const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
