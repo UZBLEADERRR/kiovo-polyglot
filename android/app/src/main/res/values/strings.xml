@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Kiovo Reels</string>
+    <string name="title_activity_main">Kiovo Reels</string>
+    <string name="package_name">uz.kiovo.reels</string>
+    <string name="custom_url_scheme">uz.kiovo.reels</string>
+</resources>

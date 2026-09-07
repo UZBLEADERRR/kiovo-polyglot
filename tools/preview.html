@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="utf-8" />
+    <title>Kiovo Reels — render sinovi</title>
+    <link rel="stylesheet" href="/fonts/fonts.css" />
+    <style>
+      body { margin: 0; background: #111; }
+      canvas { display: block; margin: 0 auto; }
+    </style>
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+    <script type="module">
+      // Faqat ishlab chiqish uchun: shablonlarni brauzerda ko'z bilan tekshirish.
+      import { STORYBOARDS, projectFromStoryboard } from "/src/lib/storyboards.ts";
+      import { TEMPLATES } from "/src/render/templates/index.ts";
+      import { makeProject, makeScene } from "/src/lib/project.ts";
+      import { layoutScenes, renderFrame, totalDuration } from "/src/render/engine.ts";
+      import { exportVideo, outputSize, webCodecsAvailable } from "/src/lib/export.ts";
+      import { removeBackground } from "/src/lib/cutout.ts";
+
+      const canvas = document.getElementById("c");
+
+      window.__api = {
+        listStoryboards: () => STORYBOARDS.map((s) => s.id),
+        listTemplates: () => TEMPLATES.map((t) => t.id),
+        /** Ssenariydagi sahnani berilgan progressda chizadi. */
+        shotStoryboard(id, sceneIndex, progress = 0.72, h = 960) {
+          const sb = STORYBOARDS.find((s) => s.id === id);
+          const project = projectFromStoryboard(sb);
+          return shot(project, sceneIndex, progress, h);
+        },
+        /** Bitta shablonni sukut qiymatlari bilan chizadi. */
+        shotTemplate(templateId, progress = 0.72, h = 960, aspect = "9:16") {
+          const project = makeProject("test", [makeScene(templateId)], aspect);
+          return shot(project, 0, progress, h);
+        },
+        /** Qurilma qanday kodlashni qo'llab-quvvatlashini tekshiradi. */
+        async probe() {
+          const out = { webCodecs: webCodecsAvailable(), avc: [], recorder: [] };
+          const codecs = ["avc1.640034", "avc1.640028", "avc1.42e01f", "vp8", "vp09.00.10.08"];
+          for (const codec of codecs) {
+            try {
+              const r = await VideoEncoder.isConfigSupported({
+                codec, width: 540, height: 960, bitrate: 2_000_000, framerate: 30,
+              });
+              if (r.supported) out.avc.push(codec);
+            } catch (e) {
+              /* qo'llab-quvvatlanmaydi */
+            }
+          }
+          for (const m of [
+            "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
+            "video/webm;codecs=vp9,opus",
+            "video/webm;codecs=vp8,opus",
+          ]) {
+            if (MediaRecorder.isTypeSupported(m)) out.recorder.push(m);
+          }
+          try {
+            const a = await AudioEncoder.isConfigSupported({
+              codec: "mp4a.40.2", sampleRate: 48000, numberOfChannels: 2, bitrate: 128000,
+            });
+            out.aac = !!a.supported;
+          } catch (e) {
+            out.aac = false;
+          }
+          return out;
+        },
+        /** To'liq eksport siklini bajarib, natijani base64 qilib qaytaradi. */
+        async exportStoryboard(id, height = 480, engine) {
+          const sb = STORYBOARDS.find((s) => s.id === id);
+          const project = projectFromStoryboard(sb);
+          const events = [];
+          const res = await exportVideo(
+            project,
+            new Map(),
+            { quality: height, fps: project.fps, withAudio: false, engine },
+            (p) => { if (events.length < 3 || p.value === 1) events.push(p.phase); },
+          );
+          const buf = new Uint8Array(await res.blob.arrayBuffer());
+          let bin = "";
+          for (let i = 0; i < buf.length; i += 8192) {
+            bin += String.fromCharCode.apply(null, buf.subarray(i, i + 8192));
+          }
+          return {
+            engine: res.engine, ext: res.ext, mime: res.mime, size: res.blob.size,
+            width: res.width, height: res.height, durationMs: res.durationMs,
+            base64: btoa(bin), events,
+          };
+        },
+        /** Yaratilgan faylni <video> orqali o'qib ko'radi. */
+        verify(base64, mime) {
+          const bin = atob(base64);
+          const buf = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+          const url = URL.createObjectURL(new Blob([buf], { type: mime }));
+          const v = document.createElement("video");
+          v.muted = true;
+          v.src = url;
+          return new Promise((resolve) => {
+            const done = (ok, err) =>
+              resolve({ ok, err, duration: v.duration, w: v.videoWidth, h: v.videoHeight });
+            v.onloadeddata = () => done(true, null);
+            v.onerror = () => done(false, String(v.error && v.error.message));
+            setTimeout(() => done(false, "timeout"), 12000);
+          });
+        },
+        /** Fon olib tashlashni sinaydi: sun'iy rasm yasab, natijani tekshiradi. */
+        async testCutout() {
+          const c = document.createElement("canvas");
+          c.width = 400; c.height = 400;
+          const x = c.getContext("2d");
+          x.fillStyle = "#FF00FF";
+          x.fillRect(0, 0, 400, 400);
+          x.fillStyle = "#2f6fed";
+          x.beginPath(); x.arc(200, 200, 120, 0, Math.PI * 2); x.fill();
+          x.fillStyle = "#ffcc00";
+          x.fillRect(160, 160, 80, 80);
+          const src = await new Promise((r) => c.toBlob(r, "image/png"));
+          const out = await removeBackground(src, { tolerance: 46 });
+
+          const img = new Image();
+          const url = URL.createObjectURL(out);
+          await new Promise((r, j) => { img.onload = r; img.onerror = j; img.src = url; });
+          const c2 = document.createElement("canvas");
+          c2.width = img.naturalWidth; c2.height = img.naturalHeight;
+          const x2 = c2.getContext("2d");
+          x2.drawImage(img, 0, 0);
+          const d = x2.getImageData(0, 0, c2.width, c2.height).data;
+          const at = (px, py) => {
+            const i = (py * c2.width + px) * 4;
+            return { r: d[i], g: d[i + 1], b: d[i + 2], a: d[i + 3] };
+          };
+          URL.revokeObjectURL(url);
+          return {
+            size: [c2.width, c2.height],
+            corner: at(0, 0),
+            center: at(c2.width >> 1, c2.height >> 1),
+            bytes: out.size,
+            type: out.type,
+          };
+        },
+        /** Fonsiz obyekt shablonini haqiqiy rasm bilan chizadi. */
+        async shotCutout(progress = 0.7, h = 960) {
+          const c = document.createElement("canvas");
+          c.width = 700; c.height = 900;
+          const x = c.getContext("2d");
+          x.fillStyle = "#FF00FF"; x.fillRect(0, 0, 700, 900);
+          const g = x.createLinearGradient(150, 150, 550, 780);
+          g.addColorStop(0, "#f8fafc"); g.addColorStop(1, "#94a3b8");
+          x.fillStyle = g;
+          x.beginPath();
+          x.ellipse(350, 470, 210, 300, 0, 0, Math.PI * 2);
+          x.fill();
+          x.fillStyle = "#0f172a";
+          x.fillRect(280, 320, 140, 300);
+          const src = await new Promise((r) => c.toBlob(r, "image/png"));
+          const cut = await removeBackground(src, { tolerance: 46 });
+          const img = new Image();
+          img.src = URL.createObjectURL(cut);
+          await img.decode();
+
+          const project = makeProject("cutout", [makeScene("cutout")], "9:16");
+          project.scenes[0].data.image = "demo";
+          const slices = layoutScenes(project);
+          const slice = slices[0];
+          const t = slice.start + (slice.end - slice.start) * progress;
+          canvas.height = h;
+          canvas.width = Math.round((h * 9) / 16);
+          renderFrame(canvas, project, t, {
+            images: new Map([["demo", img]]),
+            draft: false,
+            slices,
+          });
+          return canvas.toDataURL("image/png");
+        },
+        sizeOf(id, h) {
+          const sb = STORYBOARDS.find((s) => s.id === id);
+          return outputSize(projectFromStoryboard(sb), h);
+        },
+        totalOf(id) {
+          const sb = STORYBOARDS.find((s) => s.id === id);
+          return totalDuration(projectFromStoryboard(sb));
+        },
+      };
+
+      function shot(project, sceneIndex, progress, h) {
+        const slices = layoutScenes(project);
+        const slice = slices[sceneIndex];
+        const t = slice.start + (slice.end - slice.start) * progress;
+        const ratio = project.aspect === "9:16" ? 9 / 16 : project.aspect === "1:1" ? 1 : 16 / 9;
+        canvas.height = h;
+        canvas.width = Math.round(h * ratio);
+        renderFrame(canvas, project, t, { images: new Map(), draft: false, slices });
+        return canvas.toDataURL("image/png");
+      }
+
+      await document.fonts.load('900 100px "Inter"');
+      await document.fonts.load('400 40px "JetBrains Mono"');
+      await document.fonts.ready;
+      window.__ready = true;
+    </script>
+  </body>
+</html>
